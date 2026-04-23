@@ -1,0 +1,28 @@
+Ana García — Senior Data Engineer
+
+Contacto: ana.garcia@example.com
+
+EXPERIENCIA
+
+Lead Data Engineer · Retail Scale-up · 2021–presente
+- Lideré migración de pipeline batch a streaming (Kafka + Spark Structured Streaming).
+- Reduje latencia de 2h a <3min.
+- Ahorré 40k€/año migrando de Redshift a BigQuery.
+- Lideré equipo de 4 ingenieros júnior.
+
+Senior Data Engineer · Fintech · 2018–2021
+- Diseñé data lake sobre S3 + Delta Lake para 8 dominios de negocio.
+- Entregamos cuadros de mando con dbt + Metabase para 200 usuarios internos.
+
+Data Engineer · Consultora de datos · 2016–2018
+- Proyectos para clientes en banca, seguros y retail.
+
+EDUCACIÓN
+- Máster en Big Data — Universidad Politécnica de Madrid, 2016
+- Ingeniería Informática — UPM, 2014
+
+CERTIFICACIONES
+- Google Cloud Professional Data Engineer (2023)
+- AWS Certified Data Engineer Associate (2024)
+
+IDIOMAS: Español (nativo), Inglés (C1), Francés (B1)

@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>AI Onboarding Agent · Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Demo interactiva del agente que evalúa entrevistas grabadas y documentos de candidatos." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #FAF7F5;
+      --card-bg: #FFFFFF;
+      --card-border: #ECE6E2;
+      --text: #2A2420;
+      --muted: #7A6B64;
+      --accent: #5B6B5B;
+      --brand: #C9A7A7;
+
+      --positive: #7BA69F;
+      --negative: #C8856D;
+      --neutral: #9CA3AF;
+      --warn: #D9A868;
+
+      --ok-bg: #EEF5F2;
+      --ok-border: #BFD9CF;
+      --warn-bg: #FBF3E6;
+      --warn-border: #E9D3A9;
+      --err-bg: #FDF2EE;
+      --err-border: #E8C8BB;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px 20px 48px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* Header */
+    header.dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .brand-mark { display: flex; align-items: center; gap: 12px; }
+    .brand-circle {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--brand) 0%, #E8CCC7 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: #fff;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+    .brand-meta h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+    .brand-meta p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+    .top-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .lang-toggle {
+      display: inline-flex;
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .lang-toggle button {
+      background: transparent;
+      border: none;
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .lang-toggle button.active { background: var(--text); color: #fff; }
+
+    .pill {
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      border: 1px solid var(--card-border);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--card-border);
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .btn:hover { border-color: var(--text); }
+    .btn.primary { background: var(--text); color: #fff; border-color: var(--text); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 28px 0 10px;
+    }
+
+    /* Candidate selector */
+    .candidate-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .candidate-card {
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .candidate-card:hover { border-color: var(--text); }
+    .candidate-card.selected {
+      border-color: var(--text);
+      box-shadow: 0 0 0 3px rgba(42,36,32,0.06);
+    }
+    .avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand) 0%, #E8CCC7 100%);
+      color: #fff;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .cand-name { font-weight: 600; font-size: 15px; margin: 0; }
+    .cand-role { font-size: 12px; color: var(--muted); margin: 0; }
+    .cand-meta { font-size: 11px; color: var(--muted); }
+
+    /* Upload area */
+    .uploads {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 14px;
+    }
+    .upload-video {
+      background: #F4EFEC;
+      border: 1px dashed #D4C8BF;
+      border-radius: 10px;
+      aspect-ratio: 16 / 11;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--muted);
+      padding: 16px;
+      gap: 8px;
+      text-align: center;
+    }
+    .upload-video svg { width: 32px; height: 32px; opacity: 0.8; }
+    .upload-video .label { font-size: 12px; font-weight: 500; color: var(--text); }
+    .upload-video .sub { font-size: 11px; }
+
+    .doc-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .doc-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: #FBF9F7;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .doc-icon {
+      width: 32px; height: 32px;
+      border-radius: 6px;
+      background: var(--text);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .doc-meta { flex: 1; min-width: 0; }
+    .doc-filename { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doc-type { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .doc-status {
+      font-size: 11px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .doc-status.ok     { color: #3f6d63; }
+    .doc-status.warn   { color: #8c6c50; }
+    .doc-status.err    { color: #a74a2f; }
+
+    /* Run button row */
+    .run-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .run-row .hint { font-size: 12px; color: var(--muted); }
+
+    /* Timeline */
+    .timeline {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+    }
+    .step {
+      flex: 1;
+      min-width: 100px;
+      padding: 12px 10px;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      transition: all 0.25s;
+    }
+    .step.active {
+      background: #FFF4EC;
+      border-color: #E0A889;
+      color: var(--text);
+    }
+    .step.done {
+      background: var(--ok-bg);
+      border-color: var(--ok-border);
+      color: #3f6d63;
+    }
+    .step .step-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* Report */
+    .report-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .recommendation-card {
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .recommendation-card.strong_hire { background: var(--ok-bg); border-color: var(--ok-border); }
+    .recommendation-card.hire        { background: var(--ok-bg); border-color: var(--ok-border); }
+    .recommendation-card.hire_with_caveats { background: var(--warn-bg); border-color: var(--warn-border); }
+    .recommendation-card.no_hire     { background: var(--err-bg); border-color: var(--err-border); }
+    .rec-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
+    .rec-value {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .rec-score { font-size: 13px; color: var(--muted); }
+    .rec-summary { font-size: 13px; margin-top: 6px; line-height: 1.5; }
+
+    .comp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .comp-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .comp-name { font-size: 12px; font-weight: 500; }
+    .comp-bar {
+      position: relative;
+      height: 8px;
+      background: #F3EDE9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .comp-bar-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      border-radius: 999px;
+      transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .comp-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .docs-findings { display: flex; flex-direction: column; gap: 8px; }
+    .finding {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid;
+      font-size: 12px;
+    }
+    .finding.ok   { background: var(--ok-bg); border-color: var(--ok-border); }
+    .finding.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+    .finding.err  { background: var(--err-bg); border-color: var(--err-border); }
+    .finding .f-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+
+    .flag-list { display: flex; flex-direction: column; gap: 8px; }
+    .flag {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 12px;
+    }
+    .flag.low    { background: #FBF9F7; border-color: var(--card-border); }
+    .flag.medium { background: var(--warn-bg); border-color: var(--warn-border); }
+    .flag.high   { background: var(--err-bg); border-color: var(--err-border); }
+    .flag-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .flag-sev {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #fff;
+    }
+    .flag.low .flag-sev    { color: var(--muted); }
+    .flag.medium .flag-sev { color: #8c6c50; }
+    .flag.high .flag-sev   { color: #a74a2f; }
+
+    .no-flags {
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-style: italic;
+      background: var(--ok-bg);
+      border: 1px dashed var(--ok-border);
+      border-radius: 8px;
+    }
+
+    .transcript-snippet {
+      background: #FBF9F7;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text);
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .transcript-snippet p { margin: 0 0 10px; }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+
+    @media (max-width: 900px) {
+      .candidate-row { grid-template-columns: 1fr; }
+      .uploads { grid-template-columns: 1fr; }
+      .report-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      body { padding: 16px 12px 32px; }
+      .comp-row { grid-template-columns: 1fr auto; grid-template-rows: auto auto; }
+      .comp-bar { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header class="dash-header">
+    <div class="brand-mark">
+      <div class="brand-circle">·</div>
+      <div class="brand-meta">
+        <h1 data-i18n="title">AI Onboarding Agent · Demo</h1>
+        <p data-i18n="subtitle">Revisa entrevistas grabadas y documentos de candidatos con LangGraph.</p>
+      </div>
+    </div>
+    <div class="top-controls">
+      <div class="lang-toggle">
+        <button id="lang-es" class="active">ES</button>
+        <button id="lang-en">EN</button>
+      </div>
+      <span class="pill" data-i18n="pill_demo">demo data</span>
+    </div>
+  </header>
+
+  <div class="card" style="margin-bottom: 20px;">
+    <p data-i18n="context" style="margin: 0; font-size: 13px; color: var(--muted);">
+      El agente recibe la grabación de una entrevista asíncrona tipo <strong>Hireflix</strong> y los documentos del candidato.
+      Transcribe el video, extrae el texto de los documentos, evalúa competencias, busca inconsistencias y genera un reporte con recomendación de contratación.
+    </p>
+  </div>
+
+  <!-- CANDIDATE SELECTOR -->
+  <div class="section-title" data-i18n="section_candidate">1. Elige un candidato</div>
+  <div class="candidate-row" id="candidate-row"></div>
+
+  <!-- UPLOADS -->
+  <div class="section-title" data-i18n="section_inputs">2. Entradas del agente</div>
+  <div class="card">
+    <div class="uploads">
+      <div class="upload-video">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>
+        <div class="label" id="video-label">–</div>
+        <div class="sub" data-i18n="video_sub">video entrevista · Hireflix mock</div>
+      </div>
+      <div class="doc-list" id="doc-list"></div>
+    </div>
+    <div class="run-row">
+      <div class="hint" data-i18n="run_hint">Todos los datos son ficticios. El análisis se ejecuta en tu navegador.</div>
+      <button class="btn primary" id="run-btn" data-i18n="btn_run">Analizar candidato</button>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section-title" data-i18n="section_pipeline">3. Pipeline de análisis</div>
+  <div class="card">
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="section-title" data-i18n="section_report">4. Reporte del agente</div>
+  <div id="report-container">
+    <div class="empty-state" data-i18n="report_empty">Pulsa “Analizar candidato” para generar el reporte.</div>
+  </div>
+
+  <footer>
+    <span data-i18n="footer_demo">Demo interactiva</span> ·
+    <a href="https://github.com/mflorgar/ai-onboarding-agent" target="_blank" rel="noopener">ai-onboarding-agent</a>
+    · <span data-i18n="footer_fiction">Candidatos ficticios creados para la demo.</span><br>
+    <span data-i18n="footer_by">Hecha por</span>
+    <a href="https://linkedin.com/in/mariafloresgarcia" target="_blank" rel="noopener">María Flores</a>.
+  </footer>
+
+</div>
+
+<script>
+  // ============================================================
+  // i18n
+  // ============================================================
+  const I18N = {
+    es: {
+      title: 'AI Onboarding Agent · Demo',
+      subtitle: 'Revisa entrevistas grabadas y documentos de candidatos con LangGraph.',
+      pill_demo: 'demo data',
+      context: 'El agente recibe la grabación de una entrevista asíncrona tipo <strong>Hireflix</strong> y los documentos del candidato. Transcribe el video, extrae el texto de los documentos, evalúa competencias, busca inconsistencias y genera un reporte con recomendación de contratación.',
+      section_candidate: '1. Elige un candidato',
+      section_inputs: '2. Entradas del agente',
+      section_pipeline: '3. Pipeline de análisis',
+      section_report: '4. Reporte del agente',
+      video_sub: 'video entrevista · Hireflix mock',
+      run_hint: 'Todos los datos son ficticios. El análisis se ejecuta en tu navegador.',
+      btn_run: 'Analizar candidato',
+      btn_analyzing: 'Analizando…',
+      report_empty: 'Pulsa “Analizar candidato” para generar el reporte.',
+      footer_demo: 'Demo interactiva',
+      footer_fiction: 'Candidatos ficticios creados para la demo.',
+      footer_by: 'Hecha por',
+
+      step_ingest: 'ingest',
+      step_transcribe: 'transcribe',
+      step_extract: 'extract_documents',
+      step_analyze: 'analyze_answers',
+      step_verify: 'verify_documents',
+      step_score: 'score_candidate',
+      step_report: 'generate_report',
+
+      step_ingest_sub: 'recibe inputs',
+      step_transcribe_sub: 'video → texto',
+      step_extract_sub: 'OCR docs',
+      step_analyze_sub: 'LLM competencias',
+      step_verify_sub: 'valida docs',
+      step_score_sub: 'score global',
+      step_report_sub: 'reporte final',
+
+      report_recommendation: 'Recomendación',
+      report_overall: 'Puntuación global',
+      report_transcript: 'Fragmento del transcript',
+      report_competencies: 'Competencias',
+      report_docs: 'Verificación de documentos',
+      report_flags: 'Red flags',
+      no_flags: 'Sin red flags. Candidatura limpia.',
+
+      rec_strong_hire: 'Strong hire',
+      rec_hire: 'Hire',
+      rec_hire_with_caveats: 'Hire con reservas',
+      rec_no_hire: 'No hire',
+
+      doc_cv: 'CV',
+      doc_certificate: 'Certificado',
+      doc_id: 'Identificación',
+      doc_portfolio: 'Portfolio',
+      doc_reference: 'Referencia',
+      doc_other: 'Otro',
+
+      doc_ok: 'Consistente',
+      doc_warn: 'Advertencia',
+      doc_err: 'Inconsistente',
+
+      sev_low: 'Leve',
+      sev_medium: 'Media',
+      sev_high: 'Crítica',
+
+      video_label: 'interview_{id}.mp4',
+    },
+    en: {
+      title: 'AI Onboarding Agent · Demo',
+      subtitle: 'Review recorded interviews and candidate documents with LangGraph.',
+      pill_demo: 'demo data',
+      context: 'The agent receives an async interview recording (Hireflix-style) and the candidate documents. It transcribes the video, extracts text from documents, scores competencies, detects inconsistencies and produces a hiring recommendation report.',
+      section_candidate: '1. Pick a candidate',
+      section_inputs: '2. Agent inputs',
+      section_pipeline: '3. Analysis pipeline',
+      section_report: '4. Agent report',
+      video_sub: 'interview video · Hireflix mock',
+      run_hint: 'All data is fictional. The analysis runs in your browser.',
+      btn_run: 'Analyze candidate',
+      btn_analyzing: 'Analyzing…',
+      report_empty: 'Hit “Analyze candidate” to generate the report.',
+      footer_demo: 'Interactive demo',
+      footer_fiction: 'Fictional candidates for this demo.',
+      footer_by: 'Built by',
+
+      step_ingest: 'ingest',
+      step_transcribe: 'transcribe',
+      step_extract: 'extract_documents',
+      step_analyze: 'analyze_answers',
+      step_verify: 'verify_documents',
+      step_score: 'score_candidate',
+      step_report: 'generate_report',
+
+      step_ingest_sub: 'receive inputs',
+      step_transcribe_sub: 'video → text',
+      step_extract_sub: 'doc OCR',
+      step_analyze_sub: 'LLM scoring',
+      step_verify_sub: 'validate docs',
+      step_score_sub: 'overall score',
+      step_report_sub: 'final report',
+
+      report_recommendation: 'Recommendation',
+      report_overall: 'Overall score',
+      report_transcript: 'Transcript snippet',
+      report_competencies: 'Competencies',
+      report_docs: 'Document verification',
+      report_flags: 'Red flags',
+      no_flags: 'No red flags. Clean application.',
+
+      rec_strong_hire: 'Strong hire',
+      rec_hire: 'Hire',
+      rec_hire_with_caveats: 'Hire with caveats',
+      rec_no_hire: 'No hire',
+
+      doc_cv: 'CV',
+      doc_certificate: 'Certificate',
+      doc_id: 'ID',
+      doc_portfolio: 'Portfolio',
+      doc_reference: 'Reference',
+      doc_other: 'Other',
+
+      doc_ok: 'Consistent',
+      doc_warn: 'Warning',
+      doc_err: 'Inconsistent',
+
+      sev_low: 'Low',
+      sev_medium: 'Medium',
+      sev_high: 'High',
+
+      video_label: 'interview_{id}.mp4',
+    },
+  };
+
+  let LANG = 'es';
+  const t = (k) => I18N[LANG][k] ?? k;
+  function applyStaticI18n() {
+    document.documentElement.lang = LANG;
+    document.title = t('title');
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.innerHTML = t(el.dataset.i18n);
+    });
+  }
+
+  // ============================================================
+  // Fake candidates (hardcoded for demo — in real backend these come from LLM)
+  // ============================================================
+  const CANDIDATES = {
+    ana_garcia: {
+      avatar: 'AG',
+      name: 'Ana García',
+      role: { es: 'Senior Data Engineer', en: 'Senior Data Engineer' },
+      experience: 7,
+      documents: [
+        { filename: 'cv.pdf', type: 'cv' },
+        { filename: 'gcp_certified.pdf', type: 'certificate' },
+        { filename: 'aws_certified.pdf', type: 'certificate' },
+      ],
+      docVerdicts: [
+        { filename: 'cv.pdf', type: 'cv', status: 'ok', notesKey: 'doc_ana_cv' },
+        { filename: 'gcp_certified.pdf', type: 'certificate', status: 'ok', notesKey: 'doc_ana_gcp' },
+        { filename: 'aws_certified.pdf', type: 'certificate', status: 'ok', notesKey: 'doc_ana_aws' },
+      ],
+      transcript: {
+        es: 'Llevo siete años en ingeniería de datos. Lideré la migración de un pipeline batch a streaming sobre Kafka y Spark: reduje la latencia de dos horas a menos de tres minutos. Migramos un warehouse de Redshift a BigQuery, ahorrando 40.000 euros anuales. Lideré a cuatro ingenieros júnior con pair programming y code reviews; redujimos bugs en producción un 60%.',
+        en: 'I have seven years in data engineering. I led the migration of a batch pipeline to streaming on Kafka and Spark: latency dropped from two hours to under three minutes. We migrated our warehouse from Redshift to BigQuery, saving €40k/year. I led four junior engineers with pair programming and code reviews; production bugs dropped 60%.',
+      },
+      competencies: [
+        { name: { es: 'Comunicación',            en: 'Communication' },     score: 8.8 },
+        { name: { es: 'Resolución de problemas',  en: 'Problem solving' },   score: 8.4 },
+        { name: { es: 'Experiencia técnica',      en: 'Technical experience'}, score: 9.0 },
+        { name: { es: 'Fit cultural',             en: 'Cultural fit' },      score: 8.2 },
+        { name: { es: 'Motivación',               en: 'Motivation' },        score: 8.6 },
+        { name: { es: 'Liderazgo',                en: 'Leadership' },        score: 8.0 },
+      ],
+      flags: [],
+      overall: 8.5,
+      recommendation: 'strong_hire',
+      summary: {
+        es: 'Ana García aplica al rol de Senior Data Engineer con puntuación 8.5/10. Destaca en Experiencia técnica, Comunicación y Motivación. Sin red flags. Recomendado para siguiente ronda con fuerte señal positiva.',
+        en: 'Ana García applies for Senior Data Engineer with an 8.5/10 score. Stands out in technical experience, communication and motivation. No red flags. Recommended for next round with strong positive signal.',
+      },
+    },
+    marco_silva: {
+      avatar: 'MS',
+      name: 'Marco Silva',
+      role: { es: 'Marketing Manager', en: 'Marketing Manager' },
+      experience: 5,
+      documents: [
+        { filename: 'cv.pdf', type: 'cv' },
+        { filename: 'google_ads_cert.pdf', type: 'certificate' },
+      ],
+      docVerdicts: [
+        { filename: 'cv.pdf', type: 'cv', status: 'warn', notesKey: 'doc_marco_cv' },
+        { filename: 'google_ads_cert.pdf', type: 'certificate', status: 'warn', notesKey: 'doc_marco_cert' },
+      ],
+      transcript: {
+        es: 'Llevo cinco años en marketing digital, principalmente performance y email. En mi último puesto reduje el coste por lead un 15%. He sido contribuidor individual; me gustaría dar el paso a liderar equipo pequeño. Tuve un gap de un año viajando antes de mi último puesto.',
+        en: 'I have five years in digital marketing, mostly performance and email. In my last role I reduced cost per lead by 15%. Always an individual contributor; I want to move to small team leadership. I had a one-year gap traveling before my last role.',
+      },
+      competencies: [
+        { name: { es: 'Comunicación',             en: 'Communication' },    score: 6.2 },
+        { name: { es: 'Resolución de problemas',  en: 'Problem solving' },  score: 5.8 },
+        { name: { es: 'Experiencia técnica',      en: 'Technical experience'}, score: 6.4 },
+        { name: { es: 'Fit cultural',             en: 'Cultural fit' },     score: 6.0 },
+        { name: { es: 'Motivación',               en: 'Motivation' },       score: 7.0 },
+        { name: { es: 'Liderazgo',                en: 'Leadership' },       score: 4.8 },
+      ],
+      flags: [
+        { severity: 'medium', title: { es: 'Gap de empleo no explicado formalmente', en: 'Unexplained employment gap' },
+          detail: { es: 'El CV indica un año sin empleo. El transcript lo menciona como viaje, sin impacto profesional claro.',
+                    en: 'CV shows a year without employment. Transcript mentions travel, with no clear professional impact.' } },
+        { severity: 'low', title: { es: 'Certificación Google Ads caducada', en: 'Expired Google Ads certification' },
+          detail: { es: 'La credencial es de 2019 y aparece como caducada. Considerar renovación previa al onboarding.',
+                    en: 'Credential from 2019, marked as expired. Consider renewal before onboarding.' } },
+        { severity: 'medium', title: { es: 'Poca experiencia de liderazgo directo', en: 'Limited direct leadership experience' },
+          detail: { es: 'Candidato aplicando a Manager pero sin experiencia previa gestionando equipo. Evaluar plan de desarrollo.',
+                    en: 'Candidate applies for Manager with no prior team management. Evaluate a development plan.' } },
+      ],
+      overall: 5.8,
+      recommendation: 'hire_with_caveats',
+      summary: {
+        es: 'Marco Silva, 5.8/10. Experiencia técnica correcta y motivación alta. Áreas débiles: liderazgo directo. 3 red flags (1 media, 1 baja, 1 media). Recomendado avanzar a entrevista de panel con foco en liderazgo y justificación del gap.',
+        en: 'Marco Silva, 5.8/10. Solid technical experience and high motivation. Weak in direct leadership. 3 red flags (1 medium, 1 low, 1 medium). Recommended to advance to panel interview focused on leadership and gap justification.',
+      },
+    },
+    laura_mendez: {
+      avatar: 'LM',
+      name: 'Laura Méndez',
+      role: { es: 'Product Designer', en: 'Product Designer' },
+      experience: 3,
+      documents: [
+        { filename: 'cv.pdf', type: 'cv' },
+      ],
+      docVerdicts: [
+        { filename: 'cv.pdf', type: 'cv', status: 'err', notesKey: 'doc_laura_cv' },
+      ],
+      transcript: {
+        es: 'No recuerdo proyectos exactos. He trabajado en algunos sitios. No terminé el último proyecto porque me despidieron, pero no es mi culpa. No soy muy de research. He mentido un poco en el CV, no todas las fechas son exactas.',
+        en: 'I do not recall exact projects. I have worked at some places. I did not finish the last project because I was fired, but it was not my fault. I am not big on research. I lied a bit on the CV, not all dates are exact.',
+      },
+      competencies: [
+        { name: { es: 'Comunicación',             en: 'Communication' },    score: 2.0 },
+        { name: { es: 'Resolución de problemas',  en: 'Problem solving' },  score: 2.2 },
+        { name: { es: 'Experiencia técnica',      en: 'Technical experience'}, score: 3.0 },
+        { name: { es: 'Fit cultural',             en: 'Cultural fit' },     score: 1.5 },
+        { name: { es: 'Motivación',               en: 'Motivation' },       score: 2.5 },
+        { name: { es: 'Liderazgo',                en: 'Leadership' },       score: 1.0 },
+      ],
+      flags: [
+        { severity: 'high', title: { es: 'Información inconsistente en el CV', en: 'Inconsistent CV information' },
+          detail: { es: 'La candidata admite en la entrevista que ha falseado fechas en su CV. Requiere verificación adicional antes de cualquier decisión.',
+                    en: 'Candidate admits on interview that CV dates are inaccurate. Requires further verification before any decision.' } },
+        { severity: 'medium', title: { es: 'Despedida del último puesto sin asumir responsabilidad', en: 'Fired from last role without accountability' },
+          detail: { es: 'Menciona que la despidieron y atribuye la responsabilidad al entorno, sin reflexión propia.',
+                    en: 'Mentions she was fired and places responsibility elsewhere, without self-reflection.' } },
+      ],
+      overall: 0.5,
+      recommendation: 'no_hire',
+      summary: {
+        es: 'Laura Méndez, 0.5/10. Respuestas muy cortas, sin métricas ni ejemplos concretos. 2 red flags, una de ellas crítica por inconsistencia declarada entre CV y entrevista. No se recomienda avanzar.',
+        en: 'Laura Méndez, 0.5/10. Very short answers, no metrics or concrete examples. 2 red flags including one high-severity for admitted CV/interview inconsistency. Do not advance.',
+      },
+    },
+  };
+
+  const DOC_NOTES = {
+    es: {
+      doc_ana_cv:   'CV consistente con el transcript. Experiencia y logros validables.',
+      doc_ana_gcp:  'GCP Professional Data Engineer, válida hasta 2026.',
+      doc_ana_aws:  'AWS Data Engineer Associate, emitida en 2024.',
+      doc_marco_cv: 'CV declara un gap de 2021-2022 que la candidatura no contextualiza con suficiente detalle.',
+      doc_marco_cert:'Credencial Google Ads de 2019 marcada como caducada.',
+      doc_laura_cv: 'CV con fechas aproximadas y proyectos sin completar. Inconsistencias admitidas por la candidata.',
+    },
+    en: {
+      doc_ana_cv:   'CV consistent with the transcript. Experience and achievements verifiable.',
+      doc_ana_gcp:  'GCP Professional Data Engineer, valid until 2026.',
+      doc_ana_aws:  'AWS Data Engineer Associate, issued 2024.',
+      doc_marco_cv: 'CV shows a 2021-2022 gap not properly contextualized by the candidate.',
+      doc_marco_cert:'Google Ads credential from 2019 marked as expired.',
+      doc_laura_cv: 'CV with approximate dates and unfinished projects. Candidate admitted inconsistencies.',
+    },
+  };
+
+  const STEPS = [
+    'step_ingest','step_transcribe','step_extract','step_analyze','step_verify','step_score','step_report'
+  ];
+
+  // ============================================================
+  // State
+  // ============================================================
+  let selectedId = 'ana_garcia';
+  let running = false;
+
+  // ============================================================
+  // Render
+  // ============================================================
+  const $ = (id) => document.getElementById(id);
+
+  function renderCandidates() {
+    const row = $('candidate-row');
+    row.innerHTML = '';
+    for (const [id, c] of Object.entries(CANDIDATES)) {
+      const el = document.createElement('div');
+      el.className = 'card candidate-card' + (id === selectedId ? ' selected' : '');
+      el.innerHTML = `
+        <div style="display:flex; gap: 12px; align-items: center;">
+          <div class="avatar">${c.avatar}</div>
+          <div style="flex: 1; min-width: 0;">
+            <p class="cand-name">${c.name}</p>
+            <p class="cand-role">${c.role[LANG]}</p>
+          </div>
+        </div>
+        <div class="cand-meta">${c.experience} ${LANG === 'es' ? 'años de experiencia' : 'years of experience'} · ${c.documents.length} ${LANG === 'es' ? 'documentos' : 'documents'}</div>
+      `;
+      el.addEventListener('click', () => {
+        selectedId = id;
+        renderCandidates();
+        renderInputs();
+        renderTimeline(-1);
+        $('report-container').innerHTML = `<div class="empty-state">${t('report_empty')}</div>`;
+      });
+      row.appendChild(el);
+    }
+  }
+
+  function renderInputs() {
+    const c = CANDIDATES[selectedId];
+    $('video-label').textContent = t('video_label').replace('{id}', selectedId);
+
+    const docList = $('doc-list');
+    docList.innerHTML = '';
+    for (const doc of c.documents) {
+      const el = document.createElement('div');
+      el.className = 'doc-item';
+      const ext = doc.filename.split('.').pop().toUpperCase();
+      el.innerHTML = `
+        <div class="doc-icon">${ext}</div>
+        <div class="doc-meta">
+          <div class="doc-filename">${doc.filename}</div>
+          <div class="doc-type">${t('doc_' + doc.type)}</div>
+        </div>
+        <div class="doc-status">${LANG === 'es' ? 'pendiente' : 'pending'}</div>
+      `;
+      docList.appendChild(el);
+    }
+  }
+
+  function renderTimeline(activeIdx) {
+    const tl = $('timeline');
+    tl.innerHTML = '';
+    STEPS.forEach((s, i) => {
+      const el = document.createElement('div');
+      const cls = i < activeIdx ? 'done' : i === activeIdx ? 'active' : '';
+      el.className = 'step ' + cls;
+      el.innerHTML = `
+        <span class="step-name">${t(s)}</span>
+        <span>${t(s + '_sub')}</span>
+      `;
+      tl.appendChild(el);
+    });
+  }
+
+  function severityKey(sev) { return 'sev_' + sev; }
+  function recKey(r) { return 'rec_' + r; }
+
+  function renderReport() {
+    const c = CANDIDATES[selectedId];
+
+    const compHtml = c.competencies.map(comp => {
+      const pct = Math.round(comp.score * 10);
+      let color = 'var(--positive)';
+      if (comp.score < 5) color = 'var(--negative)';
+      else if (comp.score < 7) color = 'var(--warn)';
+      return `
+        <div class="comp-row">
+          <div class="comp-name">${comp.name[LANG]}</div>
+          <div class="comp-bar"><div class="comp-bar-fill" style="width: ${pct}%; background: ${color};"></div></div>
+          <div class="comp-score">${comp.score.toFixed(1)}</div>
+        </div>
+      `;
+    }).join('');
+
+    const docsHtml = c.docVerdicts.map(d => `
+      <div class="finding ${d.status}">
+        <div class="f-title">${d.filename}</div>
+        <div>${DOC_NOTES[LANG][d.notesKey] || ''}</div>
+      </div>
+    `).join('');
+
+    const flagsHtml = c.flags.length ? c.flags.map(f => `
+      <div class="flag ${f.severity}">
+        <div class="flag-header">
+          <span>${f.title[LANG]}</span>
+          <span class="flag-sev">${t(severityKey(f.severity))}</span>
+        </div>
+        <div>${f.detail[LANG]}</div>
+      </div>
+    `).join('') : `<div class="no-flags">${t('no_flags')}</div>`;
+
+    $('report-container').innerHTML = `
+      <div class="report-grid">
+        <div>
+          <div class="recommendation-card ${c.recommendation}">
+            <div class="rec-label">${t('report_recommendation')}</div>
+            <div class="rec-value">${t(recKey(c.recommendation))}</div>
+            <div class="rec-score">${t('report_overall')}: ${c.overall.toFixed(1)}/10</div>
+            <div class="rec-summary">${c.summary[LANG]}</div>
+          </div>
+          <div class="card" style="margin-top: 16px;">
+            <div style="font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px;">${t('report_transcript')}</div>
+            <div class="transcript-snippet"><p>${c.transcript[LANG]}</p></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div style="font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px;">${t('report_competencies')}</div>
+            <div class="comp-list">${compHtml}</div>
+          </div>
+          <div class="card" style="margin-top: 16px;">
+            <div style="font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px;">${t('report_docs')}</div>
+            <div class="docs-findings">${docsHtml}</div>
+          </div>
+          <div class="card" style="margin-top: 16px;">
+            <div style="font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px;">${t('report_flags')}</div>
+            <div class="flag-list">${flagsHtml}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function updateDocStatusesBulk(statusLabel, statusClass) {
+    document.querySelectorAll('.doc-status').forEach(el => {
+      el.textContent = statusLabel;
+      el.className = 'doc-status ' + statusClass;
+    });
+  }
+
+  async function runPipeline() {
+    if (running) return;
+    running = true;
+    $('run-btn').textContent = t('btn_analyzing');
+    $('run-btn').disabled = true;
+    $('report-container').innerHTML = `<div class="empty-state">${LANG === 'es' ? 'Ejecutando pipeline…' : 'Running pipeline…'}</div>`;
+
+    const c = CANDIDATES[selectedId];
+
+    for (let i = 0; i < STEPS.length; i++) {
+      renderTimeline(i);
+      // Update side effects per step for visual feedback
+      if (STEPS[i] === 'step_extract') {
+        const docVerdictsByName = Object.fromEntries(c.docVerdicts.map(d => [d.filename, d]));
+        document.querySelectorAll('.doc-item').forEach(el => {
+          const filename = el.querySelector('.doc-filename').textContent;
+          const v = docVerdictsByName[filename];
+          const statusEl = el.querySelector('.doc-status');
+          if (v) {
+            statusEl.textContent = t('doc_' + v.status);
+            statusEl.className = 'doc-status ' + v.status;
+          }
+        });
+      }
+      await new Promise(r => setTimeout(r, 650));
+    }
+    renderTimeline(STEPS.length);  // all done
+    renderReport();
+
+    running = false;
+    $('run-btn').textContent = t('btn_run');
+    $('run-btn').disabled = false;
+  }
+
+  // ============================================================
+  // Wiring
+  // ============================================================
+  $('run-btn').addEventListener('click', runPipeline);
+  $('lang-es').addEventListener('click', () => { if (LANG !== 'es') { LANG = 'es'; refresh(); } });
+  $('lang-en').addEventListener('click', () => { if (LANG !== 'en') { LANG = 'en'; refresh(); } });
+
+  function refresh() {
+    $('lang-es').classList.toggle('active', LANG === 'es');
+    $('lang-en').classList.toggle('active', LANG === 'en');
+    applyStaticI18n();
+    renderCandidates();
+    renderInputs();
+    renderTimeline(-1);
+    $('report-container').innerHTML = `<div class="empty-state">${t('report_empty')}</div>`;
+  }
+
+  refresh();
+</script>
+</body>
+</html>

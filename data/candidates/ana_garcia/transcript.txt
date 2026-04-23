@@ -1,0 +1,15 @@
+Buenos días. Mi nombre es Ana García y aplico al rol de Senior Data Engineer.
+
+Llevo siete años en ingeniería de datos. En mi último puesto, específicamente, lideré la migración de un pipeline batch a streaming sobre Kafka y Spark. Entregamos la migración en cuatro meses y reduje la latencia de dos horas a menos de tres minutos. El impacto directo fue que el equipo de producto pudo iterar sobre datos casi en tiempo real, algo que antes les costaba días.
+
+Sobre arquitectura, tengo experiencia diseñando data lakes con Delta Lake y Iceberg en AWS y GCP. Específicamente, migramos un data warehouse de Redshift a BigQuery, lo que nos ahorró unos 40.000 euros anuales en costes de infraestructura y simplificó mucho las consultas para los analistas.
+
+Trabajo muy cómoda con stakeholders de negocio. Cuando entregamos métricas nuevas, siempre hago sesiones para enseñar al equipo cómo interpretarlas. Considero que la comunicación técnica es clave para que la ingeniería de datos tenga impacto real.
+
+En cuanto al liderazgo técnico, lideré un equipo de cuatro ingenieros júnior durante dos años. Específicamente, implementamos pair programming y code reviews rigurosos, y conseguimos reducir los bugs en producción un 60%.
+
+Lo que me motiva de esta vacante es la posibilidad de diseñar la arquitectura de datos desde cero para vuestro nuevo producto. Me gustan los problemas donde el impacto de las decisiones de hoy se ve en seis o doce meses.
+
+Sobre mis debilidades: todavía estoy aprendiendo patrones de observabilidad avanzada; es un área donde estoy invirtiendo tiempo personal.
+
+Gracias por la oportunidad, espero con ganas la siguiente conversación.

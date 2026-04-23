@@ -17,7 +17,7 @@ correrlo end-to-end sin ninguna API key.
 
 ## 👀 Live demo
 
-**Live demo**: https://ai-onboarding-agent-demo.vercel.app *(actualizar con URL real)*
+**Live demo**: https://ai-onboarding-agent-phi.vercel.app
 
 La demo en [`demo/`](demo/) es un HTML estático que simula el flujo
 completo: eliges un candidato (3 ficticios con perfiles muy distintos),

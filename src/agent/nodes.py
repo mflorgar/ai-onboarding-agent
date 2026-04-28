@@ -72,7 +72,19 @@ class NodeFactory:
         # red flags penalize slightly
         penalty = sum({"low": 0.2, "medium": 0.6, "high": 1.4}.get(f.severity, 0.4) for f in flags)
         overall = round(max(0.0, min(10.0, base - penalty)), 1)
-        return {**state, "overall_score": overall, "stage": "generate_report"}
+        return {**state, "overall_score": overall, "stage": "score_candidate"}
+
+    def deep_dive(self, state: OnboardingState) -> OnboardingState:
+        """Borderline candidates only. Generates follow-up questions
+        targeting the weakest competencies and the top red flag."""
+        candidate = state["candidate"]
+        questions = self.llm.propose_followups(
+            candidate.full_name,
+            candidate.role_applied,
+            state.get("competencies", []),
+            state.get("red_flags", []),
+        )
+        return {**state, "follow_up_questions": questions, "stage": "generate_report"}
 
     def generate_report(self, state: OnboardingState) -> OnboardingState:
         candidate = state["candidate"]
@@ -96,8 +108,17 @@ class NodeFactory:
             overall_score=overall,
             recommendation=recommendation,
             summary=summary,
+            follow_up_questions=state.get("follow_up_questions", []),
         )
         return {**state, "report": report, "stage": "done", "finished": True}
+
+
+def route_after_score(state: OnboardingState) -> str:
+    """Conditional edge: borderline scores get a deep_dive pass."""
+    score = state.get("overall_score", 0.0)
+    if 5.5 <= score <= 6.5:
+        return "deep_dive"
+    return "generate_report"
 
 
 def _recommendation_for(score: float, red_flags) -> Recommendation:

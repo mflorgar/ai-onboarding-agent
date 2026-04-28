@@ -93,6 +93,41 @@
       text-transform: uppercase;
     }
 
+    .api-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 12px 5px 10px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--card-border);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .api-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--neutral);
+      box-shadow: 0 0 0 0 currentColor;
+    }
+    .api-badge[data-state="live"]    { color: #3f6d63; border-color: var(--ok-border); background: var(--ok-bg); }
+    .api-badge[data-state="live"] .api-dot {
+      background: #4a9080;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .api-badge[data-state="mock"]    { color: #8c6c50; border-color: var(--warn-border); background: var(--warn-bg); }
+    .api-badge[data-state="mock"] .api-dot { background: #d9a868; }
+    .api-badge[data-state="offline"] { color: #a74a2f; border-color: var(--err-border); background: var(--err-bg); }
+    .api-badge[data-state="offline"] .api-dot { background: #c8856d; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(74, 144, 128, 0.4); }
+      50%      { box-shadow: 0 0 0 5px rgba(74, 144, 128, 0); }
+    }
+
     .btn {
       font-family: inherit;
       font-size: 13px;
@@ -127,7 +162,7 @@
     /* Candidate selector */
     .candidate-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 14px;
     }
     .candidate-card {
@@ -142,6 +177,17 @@
       border-color: var(--text);
       box-shadow: 0 0 0 3px rgba(42,36,32,0.06);
     }
+    .candidate-card.custom {
+      background: #FBF9F7;
+      border-style: dashed;
+    }
+    .candidate-card.custom .avatar {
+      background: #fff;
+      border: 1px dashed var(--card-border);
+      color: var(--muted);
+      font-size: 22px;
+      font-weight: 300;
+    }
     .avatar {
       width: 48px; height: 48px;
       border-radius: 50%;
@@ -151,6 +197,36 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 16px;
     }
+
+    /* Custom transcript form */
+    .custom-form { display: flex; flex-direction: column; gap: 12px; }
+    .custom-form .form-row { display: flex; flex-direction: column; gap: 4px; }
+    .custom-form label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .custom-form input,
+    .custom-form textarea {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 10px 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .custom-form input:focus,
+    .custom-form textarea:focus {
+      outline: none;
+      border-color: var(--text);
+      box-shadow: 0 0 0 3px rgba(42,36,32,0.06);
+    }
+    .custom-form .hint { font-size: 12px; color: var(--muted); margin: 0; }
     .cand-name { font-weight: 600; font-size: 15px; margin: 0; }
     .cand-role { font-size: 12px; color: var(--muted); margin: 0; }
     .cand-meta { font-size: 11px; color: var(--muted); }
@@ -253,6 +329,15 @@
       border-color: var(--ok-border);
       color: #3f6d63;
     }
+    .step.skipped {
+      opacity: 0.4;
+      border-style: dashed;
+    }
+    .step.conditional .step-name::after {
+      content: " *";
+      color: var(--warn);
+      font-weight: 700;
+    }
     .step .step-name {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
@@ -260,6 +345,15 @@
       display: block;
       margin-bottom: 2px;
     }
+    .timeline-legend {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .timeline-legend strong { color: var(--text); font-weight: 600; }
 
     /* Report */
     .report-grid {
@@ -405,6 +499,75 @@
       font-style: italic;
     }
 
+    /* Follow-up questions card (deep_dive output) */
+    .followups-card {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-top: 16px;
+    }
+    .followups-card h4 {
+      margin: 0 0 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #8c6c50;
+    }
+    .followups-card .followups-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin: 0 0 10px;
+      font-style: italic;
+    }
+    .followups-card ol {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .followups-card li { margin-bottom: 6px; }
+    .followups-card li:last-child { margin-bottom: 0; }
+
+    /* Response meta strip */
+    .response-meta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .response-meta .tag {
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: #fff;
+      border: 1px solid var(--card-border);
+    }
+    .response-meta .tag.ok { background: var(--ok-bg); border-color: var(--ok-border); color: #3f6d63; }
+    .response-meta .tag.warn { background: var(--warn-bg); border-color: var(--warn-border); color: #8c6c50; }
+
+    /* Bias & limitations panel */
+    .bias-panel { display: flex; flex-direction: column; gap: 12px; }
+    .bias-panel p { margin: 0; font-size: 13px; color: var(--text); line-height: 1.55; }
+    .bias-panel ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .bias-panel ul li { margin-bottom: 6px; }
+    .bias-panel ul li strong { font-weight: 600; }
+    .bias-panel .bias-stamp {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+      border-top: 1px solid var(--card-border);
+      padding-top: 12px;
+    }
+
     footer {
       margin-top: 40px;
       font-size: 11px;
@@ -416,9 +579,12 @@
     footer a:hover { color: var(--text); }
 
     @media (max-width: 900px) {
-      .candidate-row { grid-template-columns: 1fr; }
+      .candidate-row { grid-template-columns: 1fr 1fr; }
       .uploads { grid-template-columns: 1fr; }
       .report-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .candidate-row { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
       body { padding: 16px 12px 32px; }
@@ -439,11 +605,14 @@
       </div>
     </div>
     <div class="top-controls">
+      <span class="api-badge" id="api-badge" data-state="checking" title="">
+        <span class="api-dot"></span>
+        <span id="api-badge-label" data-i18n="badge_checking">comprobando…</span>
+      </span>
       <div class="lang-toggle">
         <button id="lang-es" class="active">ES</button>
         <button id="lang-en">EN</button>
       </div>
-      <span class="pill" data-i18n="pill_demo">demo data</span>
     </div>
   </header>
 
@@ -458,6 +627,23 @@
   <div class="section-title" data-i18n="section_candidate">1. Elige un candidato</div>
   <div class="candidate-row" id="candidate-row"></div>
 
+  <!-- CUSTOM FORM (visible only when 'custom' is selected) -->
+  <div class="card custom-form" id="custom-form" style="margin-top: 14px; display: none;">
+    <div class="form-row">
+      <label for="custom-name" data-i18n="custom_name">Nombre del candidato</label>
+      <input id="custom-name" type="text" placeholder="Ej: Sofía Pérez" />
+    </div>
+    <div class="form-row">
+      <label for="custom-role" data-i18n="custom_role">Rol al que aplica</label>
+      <input id="custom-role" type="text" placeholder="Ej: Backend Engineer" />
+    </div>
+    <div class="form-row">
+      <label for="custom-transcript" data-i18n="custom_transcript">Transcript de la entrevista</label>
+      <textarea id="custom-transcript" rows="9" placeholder="Pega aquí el texto de tu entrevista…"></textarea>
+    </div>
+    <p class="hint" data-i18n="custom_hint">El agente puntuará 6 competencias y detectará red flags a partir de este texto. Sin documentos, la verificación documental se omite.</p>
+  </div>
+
   <!-- UPLOADS -->
   <div class="section-title" data-i18n="section_inputs">2. Entradas del agente</div>
   <div class="card">
@@ -470,7 +656,7 @@
       <div class="doc-list" id="doc-list"></div>
     </div>
     <div class="run-row">
-      <div class="hint" data-i18n="run_hint">Todos los datos son ficticios. El análisis se ejecuta en tu navegador.</div>
+      <div class="hint" id="run-hint" data-i18n="run_hint">Todos los datos son ficticios. El análisis se ejecuta en tu navegador.</div>
       <button class="btn primary" id="run-btn" data-i18n="btn_run">Analizar candidato</button>
     </div>
   </div>
@@ -479,12 +665,27 @@
   <div class="section-title" data-i18n="section_pipeline">3. Pipeline de análisis</div>
   <div class="card">
     <div class="timeline" id="timeline"></div>
+    <div class="timeline-legend" data-i18n="timeline_legend"><strong>*</strong> deep_dive sólo se ejecuta si el score cae en la zona borderline (5.5–6.5). Es la rama condicional del grafo.</div>
   </div>
 
   <!-- REPORT -->
   <div class="section-title" data-i18n="section_report">4. Reporte del agente</div>
   <div id="report-container">
     <div class="empty-state" data-i18n="report_empty">Pulsa “Analizar candidato” para generar el reporte.</div>
+  </div>
+
+  <!-- BIAS & LIMITATIONS -->
+  <div class="section-title" data-i18n="section_bias">5. Límites y sesgos</div>
+  <div class="card bias-panel">
+    <p data-i18n="bias_intro">Esta es una herramienta de <strong>decision support</strong>, no un decisor. Antes de cualquier uso real es imprescindible auditar:</p>
+    <ul>
+      <li data-i18n="bias_disparate"><strong>Disparate impact:</strong> el LLM puede premiar patrones de discurso correlacionados con género, lengua materna o nivel educativo. Hace falta auditar resultados por grupo demográfico.</li>
+      <li data-i18n="bias_anchoring"><strong>Anclaje:</strong> mostrar la recomendación antes de que la persona reclutadora forme su propia opinión sesga el panel. Activa el modo human-in-the-loop antes de generar el reporte.</li>
+      <li data-i18n="bias_asr"><strong>Errores de transcripción:</strong> ASR introduce ruido en acentos no estándar. El score hereda esos errores.</li>
+      <li data-i18n="bias_forgery"><strong>Forgery:</strong> el agente no verifica firmas criptográficas en certificados. La consistencia es semántica, no de autenticidad.</li>
+      <li data-i18n="bias_oversight"><strong>Supervisión humana:</strong> en regímenes como la EU AI Act, los sistemas de hiring son alto riesgo y requieren explicabilidad y supervisión humana documentada.</li>
+    </ul>
+    <p class="bias-stamp" data-i18n="bias_stamp">El pipeline es decision support, no un decision maker. Toda recomendación tiene que ser validada por una persona antes de afectar a un candidato.</p>
   </div>
 
   <footer>
@@ -505,20 +706,31 @@
     es: {
       title: 'AI Onboarding Agent · Demo',
       subtitle: 'Revisa entrevistas grabadas y documentos de candidatos con LangGraph.',
-      pill_demo: 'demo data',
-      context: 'El agente recibe la grabación de una entrevista asíncrona tipo <strong>Hireflix</strong> y los documentos del candidato. Transcribe el video, extrae el texto de los documentos, evalúa competencias, busca inconsistencias y genera un reporte con recomendación de contratación.',
+      context: 'El agente recibe la grabación de una entrevista asíncrona tipo <strong>Hireflix</strong> y los documentos del candidato. Transcribe el video, extrae el texto de los documentos, evalúa competencias, busca inconsistencias y genera un reporte con recomendación de contratación. <strong>Ramificación condicional</strong> si el score cae en zona borderline.',
       section_candidate: '1. Elige un candidato',
       section_inputs: '2. Entradas del agente',
       section_pipeline: '3. Pipeline de análisis',
       section_report: '4. Reporte del agente',
+      section_bias: '5. Límites y sesgos',
       video_sub: 'video entrevista · Hireflix mock',
-      run_hint: 'Todos los datos son ficticios. El análisis se ejecuta en tu navegador.',
+      run_hint: 'Todos los datos son ficticios. El análisis corre en una función serverless con LangGraph + Gemini.',
+      run_hint_offline: 'API serverless no disponible · ejecutándose con datos precocinados.',
+      run_hint_custom: 'Pega tu propio transcript: el LLM lo puntuará en directo.',
       btn_run: 'Analizar candidato',
       btn_analyzing: 'Analizando…',
       report_empty: 'Pulsa “Analizar candidato” para generar el reporte.',
+      report_running: 'Llamando al pipeline LangGraph…',
       footer_demo: 'Demo interactiva',
       footer_fiction: 'Candidatos ficticios creados para la demo.',
       footer_by: 'Hecha por',
+
+      badge_checking: 'comprobando…',
+      badge_live: 'live · gemini',
+      badge_mock: 'live · mock',
+      badge_offline: 'offline',
+      badge_title_live: 'API serverless activa con Gemini real (structured outputs).',
+      badge_title_mock: 'API serverless activa, sin GEMINI_API_KEY → backend mock determinista.',
+      badge_title_offline: 'API no alcanzable. El demo está usando datos precocinados.',
 
       step_ingest: 'ingest',
       step_transcribe: 'transcribe',
@@ -526,6 +738,7 @@
       step_analyze: 'analyze_answers',
       step_verify: 'verify_documents',
       step_score: 'score_candidate',
+      step_deep_dive: 'deep_dive',
       step_report: 'generate_report',
 
       step_ingest_sub: 'recibe inputs',
@@ -534,7 +747,10 @@
       step_analyze_sub: 'LLM competencias',
       step_verify_sub: 'valida docs',
       step_score_sub: 'score global',
+      step_deep_dive_sub: 'follow-ups (borderline)',
       step_report_sub: 'reporte final',
+
+      timeline_legend: '<strong>*</strong> deep_dive sólo se ejecuta si el score cae en zona borderline (5.5–6.5). Es la rama condicional del grafo.',
 
       report_recommendation: 'Recomendación',
       report_overall: 'Puntuación global',
@@ -542,7 +758,10 @@
       report_competencies: 'Competencias',
       report_docs: 'Verificación de documentos',
       report_flags: 'Red flags',
+      report_followups: 'Preguntas de seguimiento (deep_dive)',
+      report_followups_sub: 'Generadas porque el score es borderline. Para usar en una segunda ronda.',
       no_flags: 'Sin red flags. Candidatura limpia.',
+      no_docs: 'Sin documentos enviados. La verificación documental se ha omitido.',
 
       rec_strong_hire: 'Strong hire',
       rec_hire: 'Hire',
@@ -565,24 +784,59 @@
       sev_high: 'Crítica',
 
       video_label: 'interview_{id}.mp4',
+
+      custom_avatar_role: 'Tu propio caso',
+      custom_avatar_meta: 'Pega un transcript y compáralo',
+      custom_name: 'Nombre del candidato',
+      custom_role: 'Rol al que aplica',
+      custom_transcript: 'Transcript de la entrevista',
+      custom_hint: 'El agente puntuará 6 competencias y detectará red flags a partir de este texto. Sin documentos, la verificación documental se omite.',
+      custom_default_name: 'Sofía Pérez',
+      custom_default_role: 'Backend Engineer',
+      custom_default_transcript: 'Hola, soy Sofía. Llevo cuatro años en backend, principalmente en startups pequeñas. He trabajado con Python y Node.js, sobre todo APIs REST y procesos asíncronos. En mi último puesto contribuí a la migración de varios endpoints a microservicios; la arquitectura la diseñó mi tech lead pero yo implementé tres servicios. Reduje la latencia de uno de los flujos de checkout, creo que un 20% aunque no recuerdo la métrica exacta. He trabajado con stakeholders de producto un par de veces para priorizar entregas. Sobre liderazgo formal, no lideré equipo directamente; me gustaría dar el paso en este rol. Entre mis debilidades, depende mucho del contexto, a veces no priorizo bien.',
+
+      bias_intro: 'Esta es una herramienta de <strong>decision support</strong>, no un decisor. Antes de cualquier uso real es imprescindible auditar:',
+      bias_disparate: '<strong>Disparate impact:</strong> el LLM puede premiar patrones de discurso correlacionados con género, lengua materna o nivel educativo. Hace falta auditar resultados por grupo demográfico.',
+      bias_anchoring: '<strong>Anclaje:</strong> mostrar la recomendación antes de que la persona reclutadora forme su propia opinión sesga el panel. Activa el modo human-in-the-loop antes de generar el reporte.',
+      bias_asr: '<strong>Errores de transcripción:</strong> ASR introduce ruido en acentos no estándar. El score hereda esos errores.',
+      bias_forgery: '<strong>Forgery:</strong> el agente no verifica firmas criptográficas en certificados. La consistencia es semántica, no de autenticidad.',
+      bias_oversight: '<strong>Supervisión humana:</strong> en regímenes como la EU AI Act, los sistemas de hiring son alto riesgo y requieren explicabilidad y supervisión humana documentada.',
+      bias_stamp: 'El pipeline es decision support, no un decision maker. Toda recomendación tiene que ser validada por una persona antes de afectar a un candidato.',
+
+      meta_backend: 'backend',
+      meta_latency: 'latencia',
+      meta_branch_taken: 'rama deep_dive activada',
+      meta_branch_skipped: 'rama deep_dive omitida (score fuera de borderline)',
+      meta_no_docs: 'sin documentos enviados',
     },
     en: {
       title: 'AI Onboarding Agent · Demo',
       subtitle: 'Review recorded interviews and candidate documents with LangGraph.',
-      pill_demo: 'demo data',
-      context: 'The agent receives an async interview recording (Hireflix-style) and the candidate documents. It transcribes the video, extracts text from documents, scores competencies, detects inconsistencies and produces a hiring recommendation report.',
+      context: 'The agent receives an async interview recording (Hireflix-style) and the candidate documents. It transcribes the video, extracts text from documents, scores competencies, detects inconsistencies and produces a hiring recommendation report. <strong>Conditional branching</strong> kicks in if the score is borderline.',
       section_candidate: '1. Pick a candidate',
       section_inputs: '2. Agent inputs',
       section_pipeline: '3. Analysis pipeline',
       section_report: '4. Agent report',
+      section_bias: '5. Limits & bias',
       video_sub: 'interview video · Hireflix mock',
-      run_hint: 'All data is fictional. The analysis runs in your browser.',
+      run_hint: 'All data is fictional. The analysis runs in a serverless function with LangGraph + Gemini.',
+      run_hint_offline: 'Serverless API unavailable · falling back to baked-in results.',
+      run_hint_custom: 'Paste your own transcript: the LLM scores it live.',
       btn_run: 'Analyze candidate',
       btn_analyzing: 'Analyzing…',
       report_empty: 'Hit “Analyze candidate” to generate the report.',
+      report_running: 'Calling the LangGraph pipeline…',
       footer_demo: 'Interactive demo',
       footer_fiction: 'Fictional candidates for this demo.',
       footer_by: 'Built by',
+
+      badge_checking: 'checking…',
+      badge_live: 'live · gemini',
+      badge_mock: 'live · mock',
+      badge_offline: 'offline',
+      badge_title_live: 'Serverless API live with real Gemini (structured outputs).',
+      badge_title_mock: 'Serverless API live, no GEMINI_API_KEY → deterministic mock backend.',
+      badge_title_offline: 'API unreachable. Demo is using baked-in data.',
 
       step_ingest: 'ingest',
       step_transcribe: 'transcribe',
@@ -590,6 +844,7 @@
       step_analyze: 'analyze_answers',
       step_verify: 'verify_documents',
       step_score: 'score_candidate',
+      step_deep_dive: 'deep_dive',
       step_report: 'generate_report',
 
       step_ingest_sub: 'receive inputs',
@@ -598,7 +853,10 @@
       step_analyze_sub: 'LLM scoring',
       step_verify_sub: 'validate docs',
       step_score_sub: 'overall score',
+      step_deep_dive_sub: 'follow-ups (borderline)',
       step_report_sub: 'final report',
+
+      timeline_legend: '<strong>*</strong> deep_dive runs only if the score lands in borderline range (5.5–6.5). It is the conditional branch of the graph.',
 
       report_recommendation: 'Recommendation',
       report_overall: 'Overall score',
@@ -606,7 +864,10 @@
       report_competencies: 'Competencies',
       report_docs: 'Document verification',
       report_flags: 'Red flags',
+      report_followups: 'Follow-up questions (deep_dive)',
+      report_followups_sub: 'Generated because the score is borderline. Use them in a second-round interview.',
       no_flags: 'No red flags. Clean application.',
+      no_docs: 'No documents submitted. Document verification was skipped.',
 
       rec_strong_hire: 'Strong hire',
       rec_hire: 'Hire',
@@ -629,6 +890,30 @@
       sev_high: 'High',
 
       video_label: 'interview_{id}.mp4',
+
+      custom_avatar_role: 'Your own case',
+      custom_avatar_meta: 'Paste a transcript and compare',
+      custom_name: 'Candidate name',
+      custom_role: 'Role applied to',
+      custom_transcript: 'Interview transcript',
+      custom_hint: 'The agent will score 6 competencies and detect red flags from this text. Without documents, document verification is skipped.',
+      custom_default_name: 'Sofía Pérez',
+      custom_default_role: 'Backend Engineer',
+      custom_default_transcript: 'Hola, soy Sofía. Llevo cuatro años en backend, principalmente en startups pequeñas. He trabajado con Python y Node.js, sobre todo APIs REST y procesos asíncronos. En mi último puesto contribuí a la migración de varios endpoints a microservicios; la arquitectura la diseñó mi tech lead pero yo implementé tres servicios. Reduje la latencia de uno de los flujos de checkout, creo que un 20% aunque no recuerdo la métrica exacta. He trabajado con stakeholders de producto un par de veces para priorizar entregas. Sobre liderazgo formal, no lideré equipo directamente; me gustaría dar el paso en este rol. Entre mis debilidades, depende mucho del contexto, a veces no priorizo bien.',
+
+      bias_intro: 'This is a <strong>decision support</strong> tool, not a decider. Before any real use you must audit:',
+      bias_disparate: '<strong>Disparate impact:</strong> the LLM can reward speech patterns correlated with gender, mother tongue or educational background. Audit results by demographic group.',
+      bias_anchoring: '<strong>Anchoring:</strong> showing the recommendation before the recruiter forms their own opinion biases the panel. Enable human-in-the-loop mode before generating the report.',
+      bias_asr: '<strong>Transcription errors:</strong> ASR introduces noise on non-standard accents. The score inherits those errors.',
+      bias_forgery: '<strong>Forgery:</strong> the agent does not verify cryptographic signatures on certificates. Consistency is semantic, not authenticity.',
+      bias_oversight: '<strong>Human oversight:</strong> under regimes like the EU AI Act, hiring systems are high-risk and require explainability and documented human oversight.',
+      bias_stamp: 'The pipeline is decision support, not a decision maker. Every recommendation must be validated by a human before it affects a candidate.',
+
+      meta_backend: 'backend',
+      meta_latency: 'latency',
+      meta_branch_taken: 'deep_dive branch taken',
+      meta_branch_skipped: 'deep_dive branch skipped (score outside borderline)',
+      meta_no_docs: 'no documents submitted',
     },
   };
 
@@ -784,17 +1069,25 @@
   };
 
   const STEPS = [
-    'step_ingest','step_transcribe','step_extract','step_analyze','step_verify','step_score','step_report'
+    'step_ingest','step_transcribe','step_extract','step_analyze',
+    'step_verify','step_score','step_deep_dive','step_report'
   ];
+  const DEEP_DIVE_INDEX = STEPS.indexOf('step_deep_dive');
+
+  const PRESET_IDS = ['ana_garcia', 'marco_silva', 'laura_mendez'];
 
   // ============================================================
   // State
   // ============================================================
   let selectedId = 'ana_garcia';
   let running = false;
+  let backendMode = 'checking';  // 'live' | 'mock' | 'offline' | 'checking'
+  let lastResponseMeta = null;
+
+  const API_URL = '/api/analyze';
 
   // ============================================================
-  // Render
+  // Render: candidates (3 presets + custom)
   // ============================================================
   const $ = (id) => document.getElementById(id);
 
@@ -814,21 +1107,61 @@
         </div>
         <div class="cand-meta">${c.experience} ${LANG === 'es' ? 'años de experiencia' : 'years of experience'} · ${c.documents.length} ${LANG === 'es' ? 'documentos' : 'documents'}</div>
       `;
-      el.addEventListener('click', () => {
-        selectedId = id;
-        renderCandidates();
-        renderInputs();
-        renderTimeline(-1);
-        $('report-container').innerHTML = `<div class="empty-state">${t('report_empty')}</div>`;
-      });
+      el.addEventListener('click', () => selectCandidate(id));
       row.appendChild(el);
     }
+
+    // Custom card (4th slot)
+    const customEl = document.createElement('div');
+    customEl.className = 'card candidate-card custom' + (selectedId === 'custom' ? ' selected' : '');
+    customEl.innerHTML = `
+      <div style="display:flex; gap: 12px; align-items: center;">
+        <div class="avatar">+</div>
+        <div style="flex: 1; min-width: 0;">
+          <p class="cand-name">Custom</p>
+          <p class="cand-role">${t('custom_avatar_role')}</p>
+        </div>
+      </div>
+      <div class="cand-meta">${t('custom_avatar_meta')}</div>
+    `;
+    customEl.addEventListener('click', () => selectCandidate('custom'));
+    row.appendChild(customEl);
+  }
+
+  function selectCandidate(id) {
+    selectedId = id;
+    renderCandidates();
+    renderInputs();
+    renderTimeline(-1, false);
+    lastResponseMeta = null;
+    $('report-container').innerHTML = `<div class="empty-state">${t('report_empty')}</div>`;
   }
 
   function renderInputs() {
+    const isCustom = selectedId === 'custom';
+    $('custom-form').style.display = isCustom ? 'flex' : 'none';
+
+    if (isCustom) {
+      // Seed defaults if empty
+      if (!$('custom-name').value)       $('custom-name').value = t('custom_default_name');
+      if (!$('custom-role').value)       $('custom-role').value = t('custom_default_role');
+      if (!$('custom-transcript').value) $('custom-transcript').value = t('custom_default_transcript');
+      $('video-label').textContent = 'interview_custom.mp4';
+      $('doc-list').innerHTML = `
+        <div class="doc-item" style="opacity: 0.6;">
+          <div class="doc-icon">—</div>
+          <div class="doc-meta">
+            <div class="doc-filename">${LANG === 'es' ? 'Sin documentos en modo Custom' : 'No documents in Custom mode'}</div>
+            <div class="doc-type">${t('meta_no_docs')}</div>
+          </div>
+        </div>
+      `;
+      $('run-hint').innerHTML = t('run_hint_custom');
+      return;
+    }
+
     const c = CANDIDATES[selectedId];
     $('video-label').textContent = t('video_label').replace('{id}', selectedId);
-
     const docList = $('doc-list');
     docList.innerHTML = '';
     for (const doc of c.documents) {
@@ -845,14 +1178,26 @@
       `;
       docList.appendChild(el);
     }
+    $('run-hint').innerHTML = backendMode === 'offline' ? t('run_hint_offline') : t('run_hint');
   }
 
-  function renderTimeline(activeIdx) {
+  function renderTimeline(activeIdx, deepDiveTriggered) {
     const tl = $('timeline');
     tl.innerHTML = '';
     STEPS.forEach((s, i) => {
       const el = document.createElement('div');
-      const cls = i < activeIdx ? 'done' : i === activeIdx ? 'active' : '';
+      let cls = '';
+      if (s === 'step_deep_dive') {
+        cls = 'conditional';
+        if (deepDiveTriggered === false) {
+          // skipped — never animates
+          cls += ' skipped';
+        } else if (i < activeIdx)         cls += ' done';
+        else if (i === activeIdx)         cls += ' active';
+      } else {
+        if (i < activeIdx)                cls = 'done';
+        else if (i === activeIdx)         cls = 'active';
+      }
       el.className = 'step ' + cls;
       el.innerHTML = `
         <span class="step-name">${t(s)}</span>
@@ -862,55 +1207,138 @@
     });
   }
 
+  // ============================================================
+  // API + backend probe
+  // ============================================================
+  async function probeBackend() {
+    setBadge('checking');
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 4000);
+      const r = await fetch(API_URL, { method: 'GET', signal: ctrl.signal });
+      clearTimeout(timer);
+      if (!r.ok) throw new Error('not ok');
+      const data = await r.json();
+      backendMode = data.backend === 'gemini' ? 'live' : 'mock';
+    } catch (_e) {
+      backendMode = 'offline';
+    }
+    setBadge(backendMode);
+    $('run-hint').innerHTML = backendMode === 'offline' ? t('run_hint_offline') : (selectedId === 'custom' ? t('run_hint_custom') : t('run_hint'));
+  }
+
+  function setBadge(state) {
+    const badge = $('api-badge');
+    badge.dataset.state = state;
+    const labels = { checking: 'badge_checking', live: 'badge_live', mock: 'badge_mock', offline: 'badge_offline' };
+    $('api-badge-label').textContent = t(labels[state] || 'badge_checking');
+    const titles = { live: 'badge_title_live', mock: 'badge_title_mock', offline: 'badge_title_offline' };
+    badge.title = titles[state] ? t(titles[state]) : '';
+  }
+
+  async function callApi(payload) {
+    const r = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) {
+      let detail = '';
+      try { detail = (await r.json()).detail || ''; } catch (_e) { /* */ }
+      throw new Error(`API ${r.status}${detail ? ': ' + detail : ''}`);
+    }
+    return r.json();
+  }
+
+  function buildPayload() {
+    if (selectedId === 'custom') {
+      return {
+        candidate_id: 'custom',
+        candidate: {
+          candidate_id: 'custom',
+          full_name: ($('custom-name').value || t('custom_default_name')).trim(),
+          role_applied: ($('custom-role').value || t('custom_default_role')).trim(),
+        },
+        transcript: ($('custom-transcript').value || t('custom_default_transcript')).trim(),
+        documents: [],
+      };
+    }
+    return { candidate_id: selectedId };
+  }
+
+  // ============================================================
+  // Render: report (works for both API responses and offline fallback)
+  // ============================================================
   function severityKey(sev) { return 'sev_' + sev; }
   function recKey(r) { return 'rec_' + r; }
 
-  function renderReport() {
-    const c = CANDIDATES[selectedId];
+  function compColor(score) {
+    if (score < 5) return 'var(--negative)';
+    if (score < 7) return 'var(--warn)';
+    return 'var(--positive)';
+  }
 
-    const compHtml = c.competencies.map(comp => {
+  function renderReport({ recommendation, overall, summary, transcript, competencies, docs, flags, followups, meta }) {
+    const compHtml = competencies.map(comp => {
       const pct = Math.round(comp.score * 10);
-      let color = 'var(--positive)';
-      if (comp.score < 5) color = 'var(--negative)';
-      else if (comp.score < 7) color = 'var(--warn)';
       return `
         <div class="comp-row">
-          <div class="comp-name">${comp.name[LANG]}</div>
-          <div class="comp-bar"><div class="comp-bar-fill" style="width: ${pct}%; background: ${color};"></div></div>
+          <div class="comp-name">${comp.name}</div>
+          <div class="comp-bar"><div class="comp-bar-fill" style="width: ${pct}%; background: ${compColor(comp.score)};"></div></div>
           <div class="comp-score">${comp.score.toFixed(1)}</div>
         </div>
       `;
     }).join('');
 
-    const docsHtml = c.docVerdicts.map(d => `
-      <div class="finding ${d.status}">
-        <div class="f-title">${d.filename}</div>
-        <div>${DOC_NOTES[LANG][d.notesKey] || ''}</div>
-      </div>
-    `).join('');
+    const docsHtml = docs.length
+      ? docs.map(d => `
+          <div class="finding ${d.status}">
+            <div class="f-title">${d.filename}</div>
+            <div>${d.notes}</div>
+          </div>
+        `).join('')
+      : `<div class="no-flags" style="background:#FBF9F7; border-color:var(--card-border); color:var(--muted);">${t('no_docs')}</div>`;
 
-    const flagsHtml = c.flags.length ? c.flags.map(f => `
+    const flagsHtml = flags.length ? flags.map(f => `
       <div class="flag ${f.severity}">
         <div class="flag-header">
-          <span>${f.title[LANG]}</span>
+          <span>${f.title}</span>
           <span class="flag-sev">${t(severityKey(f.severity))}</span>
         </div>
-        <div>${f.detail[LANG]}</div>
+        <div>${f.detail}</div>
       </div>
     `).join('') : `<div class="no-flags">${t('no_flags')}</div>`;
 
+    const followupsHtml = (followups && followups.length) ? `
+      <div class="followups-card">
+        <h4>${t('report_followups')}</h4>
+        <p class="followups-sub">${t('report_followups_sub')}</p>
+        <ol>${followups.map(q => `<li>${q}</li>`).join('')}</ol>
+      </div>
+    ` : '';
+
+    const metaHtml = meta ? `
+      <div class="response-meta">
+        <span class="tag ${meta.backend === 'gemini' ? 'ok' : 'warn'}">${t('meta_backend')}: ${meta.backend}</span>
+        <span class="tag">${t('meta_latency')}: ${meta.latency_ms} ms</span>
+        <span class="tag ${meta.deep_dive_triggered ? 'warn' : ''}">${meta.deep_dive_triggered ? t('meta_branch_taken') : t('meta_branch_skipped')}</span>
+      </div>
+    ` : '';
+
     $('report-container').innerHTML = `
+      ${metaHtml}
       <div class="report-grid">
         <div>
-          <div class="recommendation-card ${c.recommendation}">
+          <div class="recommendation-card ${recommendation}">
             <div class="rec-label">${t('report_recommendation')}</div>
-            <div class="rec-value">${t(recKey(c.recommendation))}</div>
-            <div class="rec-score">${t('report_overall')}: ${c.overall.toFixed(1)}/10</div>
-            <div class="rec-summary">${c.summary[LANG]}</div>
+            <div class="rec-value">${t(recKey(recommendation))}</div>
+            <div class="rec-score">${t('report_overall')}: ${overall.toFixed(1)}/10</div>
+            <div class="rec-summary">${summary}</div>
           </div>
+          ${followupsHtml}
           <div class="card" style="margin-top: 16px;">
             <div style="font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px;">${t('report_transcript')}</div>
-            <div class="transcript-snippet"><p>${c.transcript[LANG]}</p></div>
+            <div class="transcript-snippet"><p>${transcript}</p></div>
           </div>
         </div>
         <div>
@@ -931,11 +1359,81 @@
     `;
   }
 
-  function updateDocStatusesBulk(statusLabel, statusClass) {
-    document.querySelectorAll('.doc-status').forEach(el => {
-      el.textContent = statusLabel;
-      el.className = 'doc-status ' + statusClass;
-    });
+  // ----- adapt API response to renderReport's shape -----
+  function adaptApiResponse(apiResp) {
+    const r = apiResp.report;
+    return {
+      recommendation: r.recommendation,
+      overall: r.overall_score,
+      summary: r.summary,
+      transcript: r.transcript_snippet,
+      competencies: r.competencies.map(c => ({ name: c.name, score: c.score })),
+      docs: r.document_findings.map(d => ({
+        filename: d.filename,
+        status: d.is_consistent ? 'ok' : 'err',
+        notes: d.notes,
+      })),
+      flags: r.red_flags.map(f => ({
+        severity: f.severity,
+        title: f.title,
+        detail: f.detail,
+      })),
+      followups: r.follow_up_questions || [],
+      meta: {
+        backend: apiResp.backend,
+        latency_ms: apiResp.latency_ms,
+        deep_dive_triggered: apiResp.deep_dive_triggered,
+      },
+    };
+  }
+
+  // ----- adapt the offline (hardcoded) data to the same shape -----
+  function adaptFallback(id) {
+    const c = CANDIDATES[id];
+    const isBorderline = c.overall >= 5.5 && c.overall <= 6.5;
+    const followups = isBorderline ? [
+      LANG === 'es'
+        ? '¿Puedes contarnos un caso concreto donde hayas demostrado liderazgo directo sobre un equipo, idealmente con métricas de impacto?'
+        : 'Can you tell us about a concrete case where you led a team directly, ideally with impact metrics?',
+      LANG === 'es'
+        ? '¿Cómo justificarías el gap de empleo en términos de aprendizaje profesional aplicable al rol?'
+        : 'How would you justify the employment gap in terms of professional learning relevant to the role?',
+    ] : [];
+    return {
+      recommendation: c.recommendation,
+      overall: c.overall,
+      summary: c.summary[LANG],
+      transcript: c.transcript[LANG],
+      competencies: c.competencies.map(comp => ({ name: comp.name[LANG], score: comp.score })),
+      docs: c.docVerdicts.map(d => ({
+        filename: d.filename,
+        status: d.status,
+        notes: DOC_NOTES[LANG][d.notesKey] || '',
+      })),
+      flags: c.flags.map(f => ({
+        severity: f.severity,
+        title: f.title[LANG],
+        detail: f.detail[LANG],
+      })),
+      followups,
+      meta: {
+        backend: 'offline',
+        latency_ms: 0,
+        deep_dive_triggered: isBorderline,
+      },
+    };
+  }
+
+  // ============================================================
+  // Pipeline animation orchestration
+  // ============================================================
+  async function animateUntil(stopIdx, deepDiveTriggered, perStepMs = 380) {
+    for (let i = 0; i <= stopIdx; i++) {
+      // skip the deep_dive step when not triggered
+      if (i === DEEP_DIVE_INDEX && deepDiveTriggered === false) continue;
+      renderTimeline(i, deepDiveTriggered);
+      await new Promise(r => setTimeout(r, perStepMs));
+    }
   }
 
   async function runPipeline() {
@@ -943,29 +1441,64 @@
     running = true;
     $('run-btn').textContent = t('btn_analyzing');
     $('run-btn').disabled = true;
-    $('report-container').innerHTML = `<div class="empty-state">${LANG === 'es' ? 'Ejecutando pipeline…' : 'Running pipeline…'}</div>`;
+    lastResponseMeta = null;
+    $('report-container').innerHTML = `<div class="empty-state">${t('report_running')}</div>`;
+    renderTimeline(0, undefined);
 
-    const c = CANDIDATES[selectedId];
-
-    for (let i = 0; i < STEPS.length; i++) {
-      renderTimeline(i);
-      // Update side effects per step for visual feedback
-      if (STEPS[i] === 'step_extract') {
-        const docVerdictsByName = Object.fromEntries(c.docVerdicts.map(d => [d.filename, d]));
-        document.querySelectorAll('.doc-item').forEach(el => {
-          const filename = el.querySelector('.doc-filename').textContent;
-          const v = docVerdictsByName[filename];
-          const statusEl = el.querySelector('.doc-status');
-          if (v) {
-            statusEl.textContent = t('doc_' + v.status);
-            statusEl.className = 'doc-status ' + v.status;
-          }
-        });
-      }
-      await new Promise(r => setTimeout(r, 650));
+    // Kick off API + animation in parallel.
+    let apiPromise = null;
+    if (backendMode !== 'offline') {
+      apiPromise = callApi(buildPayload()).catch(err => ({ __error: err }));
     }
-    renderTimeline(STEPS.length);  // all done
-    renderReport();
+
+    // First, animate up to score_candidate (we don't know yet whether deep_dive fires).
+    await animateUntil(STEPS.indexOf('step_score'), undefined, 320);
+
+    let report;
+    if (apiPromise) {
+      const resp = await apiPromise;
+      if (resp && !resp.__error) {
+        const triggered = !!resp.deep_dive_triggered;
+        // Animate the rest with the deep_dive decision known.
+        await animateUntil(STEPS.length - 1, triggered, 320);
+        report = adaptApiResponse(resp);
+      } else {
+        // API failed mid-flight → flip to offline mode and fall back.
+        backendMode = 'offline';
+        setBadge('offline');
+        $('run-hint').innerHTML = t('run_hint_offline');
+        if (selectedId === 'custom') {
+          // Custom requires the API; show error.
+          renderTimeline(-1, false);
+          $('report-container').innerHTML = `<div class="empty-state">${LANG === 'es'
+            ? 'El modo Custom necesita el backend serverless. Selecciona un candidato preset.'
+            : 'Custom mode needs the serverless backend. Pick a preset candidate.'}</div>`;
+          running = false;
+          $('run-btn').textContent = t('btn_run');
+          $('run-btn').disabled = false;
+          return;
+        }
+        report = adaptFallback(selectedId);
+        await animateUntil(STEPS.length - 1, report.meta.deep_dive_triggered, 320);
+      }
+    } else {
+      // Offline mode (probe failed at boot)
+      if (selectedId === 'custom') {
+        renderTimeline(-1, false);
+        $('report-container').innerHTML = `<div class="empty-state">${LANG === 'es'
+          ? 'El modo Custom necesita el backend serverless. Selecciona un candidato preset.'
+          : 'Custom mode needs the serverless backend. Pick a preset candidate.'}</div>`;
+        running = false;
+        $('run-btn').textContent = t('btn_run');
+        $('run-btn').disabled = false;
+        return;
+      }
+      report = adaptFallback(selectedId);
+      await animateUntil(STEPS.length - 1, report.meta.deep_dive_triggered, 320);
+    }
+
+    lastResponseMeta = report.meta;
+    renderReport(report);
 
     running = false;
     $('run-btn').textContent = t('btn_run');
@@ -983,13 +1516,15 @@
     $('lang-es').classList.toggle('active', LANG === 'es');
     $('lang-en').classList.toggle('active', LANG === 'en');
     applyStaticI18n();
+    setBadge(backendMode);
     renderCandidates();
     renderInputs();
-    renderTimeline(-1);
+    renderTimeline(-1, false);
     $('report-container').innerHTML = `<div class="empty-state">${t('report_empty')}</div>`;
   }
 
   refresh();
+  probeBackend();
 </script>
 </body>
 </html>

@@ -24,6 +24,7 @@ class OnboardingState(TypedDict, total=False):
     document_findings: list[DocumentFinding]
     red_flags: list[RedFlag]
     overall_score: float
+    follow_up_questions: list[str]         # poblado solo si pasa por deep_dive
     report: OnboardingReport
     stage: str
     finished: bool

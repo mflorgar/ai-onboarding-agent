@@ -73,4 +73,5 @@ class OnboardingReport(BaseModel):
     overall_score: float = Field(..., ge=0.0, le=10.0)
     recommendation: Recommendation
     summary: str
+    follow_up_questions: list[str] = Field(default_factory=list)
     generated_at: datetime = Field(default_factory=datetime.utcnow)

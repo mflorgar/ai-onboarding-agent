@@ -18,7 +18,8 @@ def test_report_for_each_candidate_has_all_fields(candidate_id):
     report = run_for(candidate_id, data_dir=DATA_DIR)
     # Esquema
     for field in ("candidate", "competencies", "document_findings",
-                  "red_flags", "overall_score", "recommendation", "summary"):
+                  "red_flags", "overall_score", "recommendation",
+                  "summary", "follow_up_questions"):
         assert field in report, f"missing '{field}' in report"
     # Ranges
     assert 0 <= report["overall_score"] <= 10
@@ -56,3 +57,48 @@ def test_competency_scores_are_in_valid_range():
     for comp in report["competencies"]:
         assert 0 <= comp["score"] <= 10
         assert comp["status"] in {"above_expected", "at_expected", "below_expected"}
+
+
+# ----------------------------------------------------------------------
+# Conditional branch: deep_dive fires only on borderline scores
+# ----------------------------------------------------------------------
+
+
+def test_strong_candidate_skips_deep_dive():
+    """Ana scores high → deep_dive must NOT run → no follow-up questions."""
+    report = run_for("ana_garcia", data_dir=DATA_DIR)
+    assert report["overall_score"] > 6.5
+    assert report["follow_up_questions"] == [], (
+        "deep_dive should be skipped for high-score candidates"
+    )
+
+
+def test_borderline_candidate_triggers_deep_dive():
+    """Marco lands in [5.5, 6.5] → deep_dive must run → follow-ups present."""
+    report = run_for("marco_silva", data_dir=DATA_DIR)
+    score = report["overall_score"]
+    assert 5.5 <= score <= 6.5, (
+        f"Marco should land in the borderline range; got {score}"
+    )
+    assert len(report["follow_up_questions"]) >= 2, (
+        "deep_dive should produce 2-3 follow-up questions"
+    )
+    assert all(isinstance(q, str) and q for q in report["follow_up_questions"])
+
+
+def test_weak_candidate_skips_deep_dive():
+    """Laura scores below borderline → deep_dive must NOT run."""
+    report = run_for("laura_mendez", data_dir=DATA_DIR)
+    assert report["overall_score"] < 5.5
+    assert report["follow_up_questions"] == []
+
+
+# ----------------------------------------------------------------------
+# Backend selection — mock is the default and never needs an API key
+# ----------------------------------------------------------------------
+
+
+def test_default_backend_is_mock():
+    from src.services import LLMClient
+    client = LLMClient()
+    assert client.backend_name == "mock"

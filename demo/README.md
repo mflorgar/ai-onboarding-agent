@@ -1,37 +1,60 @@
 # Demo — AI Onboarding Agent
 
-Demo interactiva del pipeline de revisión de candidatos.
+Frontend interactivo del pipeline. Llama a `/api/analyze` (función
+Python serverless en Vercel) que **ejecuta el grafo LangGraph real**
+con backend Gemini si hay `GEMINI_API_KEY`, o mock determinista si no.
 
-El visitante elige uno de los 3 candidatos ficticios, pulsa *Analizar*
-y ve cómo el agente:
+## Qué muestra
 
-1. Recibe video + documentos
-2. Transcribe el video
-3. Extrae texto de los documentos
-4. Evalúa 6 competencias vía LLM
-5. Verifica los documentos contra el transcript
-6. Calcula el score global
-7. Genera el reporte final con recomendación
+- **3 candidatos preset** (Ana / Marco / Laura) que cubren los tres
+  caminos del grafo.
+- **Custom candidate**: pega tu propio transcript y mira cómo el LLM lo
+  puntúa en directo. El default seedeado cae en la zona *borderline*
+  (5.5–6.5) → activa la rama condicional `deep_dive`.
+- **Pipeline animado** con los 8 nodos del grafo. Si el score no es
+  borderline, `deep_dive` aparece en gris (saltado), no animado.
+- **Reporte completo**: recomendación, score, competencias con barras,
+  verificación documental, red flags por severidad, follow-ups (cuando
+  pasa por `deep_dive`) y meta-strip con `backend`, `latency_ms` y si la
+  rama condicional se activó.
+- **Panel de límites y sesgos** debajo del reporte.
+- **Badge live/mock/offline** en el header — refleja el estado real del
+  backend.
+- Toggle ES|EN para toda la UI estática.
 
-Incluye barras de competencias, verificación por documento, red flags
-con severidad y un fragmento del transcript. Toggle ES|EN.
+## Despliegue en Vercel
 
-## Deploy en Vercel
+> Diferencia con la versión anterior: el **Root Directory ahora es la
+> raíz del repo** (no `demo/`), porque la función serverless vive en
+> `api/analyze.py` y necesita importar `src/`.
 
-Esta carpeta se despliega **sola**, sin tocar el Python del repo padre.
+1. En Vercel → Project Settings → **Root Directory: `.`**
+2. **Framework Preset:** `Other`. Build/output vacíos.
+3. **Environment variables:** `GEMINI_API_KEY` (opcional). Sin ella, el
+   backend cae al mock determinista y el badge muestra `live · mock`
+   en vez de `live · gemini`.
+4. Deploy.
 
-En [vercel.com/new](https://vercel.com/new):
-
-1. **Framework Preset**: `Other`
-2. **Root Directory**: `demo` ← clave
-3. Build Command: vacío
-4. Output Directory: vacío
-5. Deploy
+`vercel.json` (en raíz) hace el rewrite `/` → `/demo/index.html` y
+empaqueta `src/` + `data/candidates/` con la función.
 
 ## Probar en local
+
+El frontend solo (sin backend) cae al modo offline con datos
+precocinados — útil para iterar CSS:
 
 ```bash
 cd ai-onboarding-agent/demo
 python3 -m http.server 8000
 # abrir http://localhost:8000
+```
+
+Para probar el flujo completo (frontend + función serverless) en local
+sin desplegar, instala el CLI de Vercel:
+
+```bash
+npm i -g vercel
+cd ai-onboarding-agent
+vercel dev
+# abrir el URL que imprime; /api/analyze ya estará vivo
 ```
